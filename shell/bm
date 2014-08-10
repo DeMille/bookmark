@@ -1,0 +1,154 @@
+#!/bin/sh
+
+main() {
+	if [ $# -eq 0 ]; then
+		getHelp
+	else
+		case $1 in
+			add|a)
+				addBookmark "$@"
+				;;
+			update|up|u)
+				updateBookmark "$@"
+				;;
+			remove|r)
+				removeBookmark "$@"
+				;;
+			list|ls|l)
+				listBookmark "$@"
+				;;
+			--help|-h)
+				getHelp
+				;;
+			--version|-V)
+				getVersion
+				;;
+			--add-alias)
+				addAlias
+				;;
+			*)
+				getBookmark "$@"
+				;;
+		esac
+	fi
+}
+
+
+basedir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+case `uname` in
+    *CYGWIN*)
+		basedir=`cygpath -w "$basedir"`
+		cygwin=true
+		;;
+esac
+
+if [ -x "$basedir/node" ]; then
+  node="$basedir/node"
+else
+  node="node"
+fi
+
+script="$node $basedir/node_modules/bookmark/index.js"
+
+
+function getHelp {
+	echo "$($script)"
+	return
+}
+
+
+function addBookmark {
+
+	if [ $cygwin ] && [ -n "$3" ]; then
+		optDir=`cygpath -w "$3"`
+	else
+		optDir=$3
+	fi
+
+	output=$($script add $2 "$optDir")
+	if [ "$output" = "exists" ]; then
+		echo "Bookmark already exists, do you want to update?: "
+		read answer
+		case $answer in
+			yes|yar|y) echo "$($script update $2 "$optDir")" ;;
+		esac
+	else
+		echo "$output"
+	fi
+	return
+}
+
+
+function updateBookmark {
+
+	if [ $cygwin ] && [ -n "$3" ]; then
+		optDir=`cygpath -w "$3"`
+	else
+		optDir=$3
+	fi
+
+	output=$($script update $2 "$optDir")
+	if [ "$output" = "nonexistent" ]; then
+		echo "Bookmark doesn't exist, do you want to make one?: "
+		read answer
+		case $answer in
+			yes|yar|y) echo "$($script add $2 "$optDir")" ;;
+		esac
+	else
+		echo "$output"
+	fi
+	return
+}
+
+
+function removeBookmark {
+	echo "$($script remove $2)"
+	return
+}
+
+
+function listBookmark {
+	echo "$($script list $2)"
+	return
+}
+
+
+function getVersion {
+	echo "$($script --version)"
+	return
+}
+
+
+function getBookmark {
+	output=$($script $1)
+	if [ "$output" = "Bookmark not found" ]; then
+		echo "This bookmark does not exist yet"
+	else
+		if [ $cygwin ]; then
+			output=$(cygpath -u "$output")
+		fi
+		cd "$output"
+	fi
+	return
+}
+
+
+function addAlias {
+	if [ -f "$HOME/.bash_aliases" ]; then
+		echo "alias bm=\"source bm\"" >> $HOME/.bash_aliases
+		source $HOME/.bash_aliases
+		echo "alias bm added to $HOME/.bash_aliases"
+	elif [ -f "$HOME/.bashrc" ]; then
+		echo "alias bm=\"source bm\"" >> $HOME/.bashrc
+		source $HOME/.bashrc
+		echo "alias bm added to $HOME/.bashrc"
+	else
+		echo "I can't find .bash_aliases or .bashrc in $HOME, you'll have to"
+		echo "add an alias yourself. I would add: alias bm=source bm"
+	fi
+	return
+}
+
+
+main "$@"
