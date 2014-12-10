@@ -1,2 +1,3 @@
+# Force proper line endings for .sh/.bat files
 * text eol=lf
 *.bat text eol=crlf
