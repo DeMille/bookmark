@@ -32,6 +32,9 @@ if "%1"=="remove" (
 if "%1"=="r" (
     goto :removeBookmark
 )
+if "%1"=="rm" (
+    goto :removeBookmark
+)
 
 
 :: List
@@ -53,10 +56,7 @@ if "%1"=="color" (
 
 
 :: Version
-if "%1"=="-V" (
-    goto :runAndEcho
-)
-if "%1"=="--version" (
+if "%1"=="-v" (
     goto :runAndEcho
 )
 
@@ -160,7 +160,7 @@ if /i {%ANSWER%}=={y} (
 
 
 :nonExists
-SET /P ANSWER=Bookmark doesn't exist, do you want to make one? %=%
+SET /P ANSWER=Bookmark doesn't exist, do you want to create one here? %=%
 if /i {%ANSWER%}=={yes} (
 	goto :addBookmark
 	goto :EOF

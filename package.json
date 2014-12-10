@@ -1,10 +1,9 @@
 {
   "name": "bookmark",
-  "version": "0.1.0",
-  "description": "Directory bookmarker: use bm <bookmark> instead of cd /really/long/path/",
+  "version": "0.1.2",
+  "description": "Directory bookmarker: use bm (bookmark) instead of cd /really/long/path/",
   "keywords": "bookmarks",
   "author": "Sterling DeMille <sterlingdemille+npm@gmail.com>",
-  "private": true,
   "main": "./lib/bookmark.js",
   "scripts": {
     "postinstall": "node scripts/postinstall.js"
