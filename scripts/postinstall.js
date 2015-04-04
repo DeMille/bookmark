@@ -15,11 +15,15 @@ function installScripts(prefix) {
 
     var nixSource = path.join(__dirname, '../shell/bm'),
         winSource = path.join(__dirname, '../shell/bm.bat'),
-        nixDest = path.join(prefix, 'bm'),
-        winDest = path.join(prefix, 'bm.bat');
+        nixDest = path.join(prefix, 'bin', 'bm'),
+        winDest = path.join(prefix, 'bm.bat'),
+        cygDest = path.join(prefix, 'bm');
 
     if (process.platform === "win32") {
         fs.createReadStream(winSource).pipe(fs.createWriteStream(winDest));
+        fs.createReadStream(nixSource).pipe(fs.createWriteStream(cygDest));
+    } else {
+        fs.createReadStream(nixSource).pipe(fs.createWriteStream(nixDest));
+        fs.chmodSync(nixDest, 0755);
     }
-    fs.createReadStream(nixSource).pipe(fs.createWriteStream(nixDest));
 }

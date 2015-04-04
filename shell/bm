@@ -36,8 +36,8 @@ main() {
     fi
 }
 
-
 basedir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cygwin=false
 
 case `uname` in
     *CYGWIN*)
@@ -45,6 +45,10 @@ case `uname` in
         cygwin=true
         ;;
 esac
+
+if ! $cygwin ; then
+    basedir="$( dirname "$basedir" )/lib"
+fi
 
 if [ -x "$basedir/node" ]; then
   node="$basedir/node"
@@ -62,7 +66,7 @@ function getHelp {
 
 
 function addBookmark {
-    if [ $cygwin ] && [ -n "$3" ]; then
+    if $cygwin && [ -n "$3" ]; then
         optDir=`cygpath -w "$3"`
     else
         optDir=$3
@@ -83,7 +87,7 @@ function addBookmark {
 
 
 function updateBookmark {
-    if [ $cygwin ] && [ -n "$3" ]; then
+    if $cygwin && [ -n "$3" ]; then
         optDir=`cygpath -w "$3"`
     else
         optDir=$3
@@ -132,7 +136,7 @@ function getBookmark {
     if [ "$output" = "Bookmark not found" ]; then
         echo "This bookmark does not exist yet"
     else
-        if [ $cygwin ]; then
+        if $cygwin; then
             output=$(cygpath -u "$output")
         fi
         cd "$output"
