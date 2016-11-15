@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 main() {
     if [ $# -eq 0 ]; then
@@ -23,44 +23,64 @@ main() {
             --help|-h)
                 getHelp
                 ;;
-            -v)
+            -v|--version)
                 getVersion
                 ;;
             --add-alias)
                 addAlias
                 ;;
             *)
-                getBookmark "$@"
+                gotoBookmark "$@"
                 ;;
         esac
     fi
 }
 
-basedir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cygwin=false
 
+# check if script is being sourced (needed for cd's to work)
+wasSourced=false
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+    wasSourced=true
+fi
+
+# bash script source, fallback zsh source
+SOURCE=${BASH_SOURCE[0]:-${(%):-%x}}
+
+# npm prefix location based on where this script is
+# (see: https://docs.npmjs.com/files/folders#executables)
+#
+# nix: {prefix}/bin/bm
+# windows: {prefix}/bm
+prefix="$( cd "$( dirname "$SOURCE" )" && pwd )"
+
+# get the right script location
+# windows: {prefix}/node_modules
+script="$prefix/node_modules/bookmark/cli/cli.js"
+
+# nix: {prefix}/lib/node_modules
+if [ ! -f "$script" ]; then
+  script="$prefix/../lib/node_modules/bookmark/cli/cli.js"
+fi
+
+# check if is running with cygwin
+cygwin=false
 case `uname` in
     *CYGWIN*)
-        basedir=`cygpath -w "$basedir"`
         cygwin=true
         ;;
 esac
 
-if ! $cygwin ; then
-    basedir="$( dirname "$basedir" )/lib"
+# script path need to be translated for node if in a cygwin environment
+if $cygwin ; then
+    prefix=`cygpath -w "$prefix"`
+    script="$prefix/node_modules/bookmark/cli/cli.js"
 fi
-
-if [ -x "$basedir/node" ]; then
-  node="$basedir/node"
-else
-  node="node"
-fi
-
-script="$node $basedir/node_modules/bookmark/index.js"
 
 
 function getHelp {
-    echo "$($script)"
+    # add/remove 'filler' to end of output to keep \n's from getting trimmed
+    output=$(node "$script" --help; echo filler)
+    echo "${output%filler}"
     return
 }
 
@@ -72,16 +92,18 @@ function addBookmark {
         optDir=$3
     fi
 
-    output=$($script add $2 "$optDir")
+    output="$(node "$script" add $2 $optDir)"
+
     if [ "$output" = "exists" ]; then
         echo "Bookmark already exists, do you want to update?: "
         read answer
         case $answer in
-            yes|yar|y) echo "$($script update $2 "$optDir")" ;;
+            yes|yar|y) echo "$(node "$script" update $2 "$optDir")" ;;
         esac
     else
         echo "$output"
     fi
+
     return
 }
 
@@ -93,71 +115,110 @@ function updateBookmark {
         optDir=$3
     fi
 
-    output=$($script update $2 "$optDir")
+    output=$(node "$script" update $2 "$optDir")
+
     if [ "$output" = "nonexistent" ]; then
         echo "Bookmark doesn't exist, do you want to create one here?: "
         read answer
         case $answer in
-            yes|yar|y) echo "$($script add $2 "$optDir")" ;;
+            yes|yar|y) echo "$(node "$script" add $2 "$optDir")" ;;
         esac
     else
         echo "$output"
     fi
+
     return
 }
 
 
 function removeBookmark {
-    echo "$($script remove $2)"
+    # add/remove 'filler' to end of output to keep \n's from getting trimmed
+    output=$(node "$script" remove $2; echo filler);
+    echo "${output%filler}"
     return
 }
 
 
 function listBookmark {
-    echo "$($script list $2)"
+    # add/remove 'filler' to end of output to keep \n's from getting trimmed
+    output=$(node "$script" list $2; echo filler);
+    echo "${output%filler}"
     return
 }
 
 
 function color {
-    echo "$($script color $2)"
+    # add/remove 'filler' to end of output to keep \n's from getting trimmed
+    output=$(node "$script" color $2; echo filler);
+    echo "${output%filler}"
     return
 }
 
 
 function getVersion {
-    echo "$($script -v)"
+    # add/remove 'filler' to end of output to keep \n's from getting trimmed
+    output=$(node "$script" -v; echo filler);
+    echo "${output%filler}"
     return
 }
 
 
-function getBookmark {
-    output=$($script $1)
-    if [ "$output" = "Bookmark not found" ]; then
-        echo "This bookmark does not exist yet"
-    else
-        if $cygwin; then
-            output=$(cygpath -u "$output")
-        fi
-        cd "$output"
+function gotoBookmark {
+    if ! $wasSourced; then
+        echo "'bm' needs to be sourced to work. You can add an alias like 'alias bm=source bm'"
+        echo "to your bashrc instead of sourcing it each time. bm will do this for you with:"
+        echo "$ . bm --add-alias"
+        return
     fi
+
+    bookmark=$(node "$script" $1)
+
+    if [ "$bookmark" = "Bookmark not found" ]; then
+        echo "This bookmark does not exist yet\n"
+    elif [ $bookmark ]; then
+        # need to un-translate path in cygwin
+        if $cygwin; then
+            bookmark=$(cygpath -u "$bookmark")
+        fi
+
+        cd "$bookmark"
+    fi
+
     return
 }
 
 
 function addAlias {
+    added=false
+
     if [ -f "$HOME/.bash_aliases" ]; then
         echo "alias bm=\"source bm\"" >> $HOME/.bash_aliases
-        source $HOME/.bash_aliases
+        source $HOME/.bash_aliases > /dev/null 2>&1
         echo "alias bm added to $HOME/.bash_aliases"
+        added=true
     elif [ -f "$HOME/.bashrc" ]; then
         echo "alias bm=\"source bm\"" >> $HOME/.bashrc
-        source $HOME/.bashrc
+        source $HOME/.bashrc > /dev/null 2>&1
         echo "alias bm added to $HOME/.bashrc"
-    else
+        added=true
+    fi
+
+    if [ -f "$HOME/.zshrc" ]; then
+        echo "alias bm=\"source bm\"" >> $HOME/.zshrc
+        source $HOME/.zshrc > /dev/null 2>&1
+        echo "alias bm added to $HOME/.zshrc"
+        added=true
+    fi
+
+    if ! $added ; then
         echo "I can't find .bash_aliases or .bashrc in $HOME, you'll have to"
         echo "add an alias yourself. I would add: alias bm=source bm"
     fi
+
+    if $added && ! $wasSourced; then
+        echo "Alias added but you still need to source the .bashrc first"
+    fi
+
     return
 }
 

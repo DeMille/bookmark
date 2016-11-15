@@ -20,16 +20,14 @@ Bookmark requires [Node.js](http://nodejs.org/)
 $ npm install -g bookmark
 ```
 
-_then, for **bash** / **cygwin**:_
+_then, for **bash** / **zsh**:_
 
 ```
-$ bm --add-alias
+$ . bm --add-alias
 ```
 Bookmark relies on .sh/.bat scripts to do its magic. Bookmark feeds those scripts the path you want to `cd` to. For a script's `cd` command to actually change the directory in your current shell you need to 'source' that script.
 
-Typing `$ source bm <bookmark>` every time is lame. You can avoid typing `source` each time by manually adding an alias (`bm="source bm"`) to your `.bash_aliases` or `.bashrc`, or you can let bookmark try to add it for you with `$ bm --add-alias`.
-
-Once you've done that, you need to `$ source .bash_aliases` (or .bashrc, wherever the alias is) for the changes to take effect in your current shell.
+Typing `$ source bm <bookmark>` every time is lame. You can avoid typing `source` each time by manually adding an alias (`bm="source bm"`) to your `.bash_aliases` or `.bashrc`, or you can let bookmark try to add it for you with `$ . bm --add-alias`.
 
 ## How to use
 ```
@@ -41,7 +39,6 @@ Commands:
   update <bookmark_name> [bookmark_path]
   remove <bookmark_name>
   list [bookmark_name]
-  color <on/off>
   <bookmark_name>
 
 Options:
@@ -56,14 +53,7 @@ Commands can also be truncated for less typing:
 - remove / rm / r
 - list / ls / l
 
-Using old busted cmd.exe and ANSI escape codes are coming out funky like: `\033[K \033[%dd`? <br/>
-No problem, run `bm color off`.
-
-As a side note, if you don't have a nice Windows terminal set up, check out one of these:
-- [cmder](http://bliker.github.io/cmder/) (built on [ConEmu](https://conemu.codeplex.com/))
-- [Babun](http://babun.github.io/)
-
-If you use Babun, just be aware that bookmark doesn't work with zsh yet.
+Bookmarks are saved in `bookmark.db` in your home directory.
 
 ## Examples
 ```
@@ -88,6 +78,10 @@ $ bm myProject
 Probably, but I don't know what it is. I've seen some complex shell scripts floating around the web, but they didn't seem to do exactly what I wanted and I couldn't find any solutions for Windows machines.
 
 It might have been better to exclude Node and only use .sh/.bat scripts, but my .sh/.bat-scripting-fu isn't up to that challenge.
+
+
+## Changelog
+0.2.0 - Support for zsh, fixes for npm prefix paths with spaces
 
 
 ## License

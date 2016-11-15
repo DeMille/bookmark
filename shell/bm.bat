@@ -1,7 +1,15 @@
 @echo off
 
+set script="%~dp0\node_modules\bookmark\cli\cli.js"
 
-set script=%~dp0\node_modules\bookmark\index.js
+
+:: Command Help (first, before the other cases below)
+if "%2"=="-h" (
+    goto :getCommandHelp
+)
+if "%2"=="--help" (
+    goto :getCommandHelp
+)
 
 
 :: Add
@@ -61,15 +69,6 @@ if "%1"=="-v" (
 )
 
 
-:: Command Help (just in case, it seems fickle)
-if "%2"=="-h" (
-	goto :getCommandHelp
-)
-if "%2"=="--help" (
-	goto :getCommandHelp
-)
-
-
 :: Help
 if "%1"=="--help" (
     goto :getHelp
@@ -78,9 +77,10 @@ if "%1"=="-h" (
     goto :getHelp
 )
 
+
+:: cd to bookmark
 if "%1"=="" (
     goto :getHelp
-
 ) else (
 	:: All other cases, fetch the bookmark
     goto :getBookmark
@@ -88,47 +88,71 @@ if "%1"=="" (
 
 
 :addBookmark
-for /f "delims=" %%a in ('node %script% add %2 %3') do @if "%%a"=="exists" (
-	goto :ifExists
-	goto :EOF
+for /f "delims=*" %%a in ('node %script% add %2 %3 ^| findstr /n "^"') do @if "%%a"=="1:exists" (
+    goto :ifExists
+    goto :EOF
 ) else (
-	echo %%a
+    set "line=%%a"
+    setlocal enableDelayedExpansion
+    set "line=!line:\\=\!" :: remove extra escape \'s
+    set "line=!line:*:=!"  :: remove line number, preserving empty newlines
+    echo(!line!
+    endlocal
 )
 goto :EOF
 
 
 :updateBookmark
-for /f "delims=" %%a in ('node %script% update %2 %3') do @if "%%a"=="nonexistent" (
-	goto :nonExists
-	goto :EOF
+for /f "delims=*" %%a in ('node %script% update %2 %3 ^| findstr /n "^"') do @if "%%a"=="1:nonexistent" (
+    goto :nonExists
+    goto :EOF
 ) else (
-	echo %%a
+    set "line=%%a"
+    setlocal enableDelayedExpansion
+    set "line=!line:\\=\!" :: remove extra escape \'s
+    set "line=!line:*:=!"  :: remove line number, preserving empty newlines
+    echo(!line!
+    endlocal
 )
 goto :EOF
 
 
 :removeBookmark
-for /f "delims=" %%a in ('node %script% remove %2') do @echo %%a
+for /f "tokens=1* delims=]" %%a in ('node %script% remove %2 ^| find /n /v ""') do @echo(%%b
 goto :EOF
 
 
 :listBookmark
-for /f "delims=" %%a in ('node %script% list %2') do @echo %%a
+for /f "delims=*" %%a in ('node %script% list %2 ^| findstr /n "^"') do (
+    set "line=%%a"
+    setlocal enableDelayedExpansion
+    set "line=!line:\\=\!" :: remove extra escape \'s
+    set "line=!line:*:=!"  :: remove line number, preserving empty newlines
+    echo(!line!
+    endlocal
+)
 goto :EOF
 
 
 :runAndEcho
-for /f "delims=" %%a in ('node %script% %*') do @echo %%a
+for /f "delims=*" %%a in ('node %script% %* ^| findstr /n "^"') do (
+    set "line=%%a"
+    setlocal enableDelayedExpansion
+    set "line=!line:\\=\!" :: remove extra escape \'s
+    set "line=!line:*:=!"  :: remove line number, preserving empty newlines
+    echo(!line!
+    endlocal
+)
 goto :EOF
 
 
 :getHelp
-for /f "delims=" %%a in ('node %script% --help') do @echo %%a
+for /f "tokens=1* delims=]" %%a in ('node %script% --help ^| find /n /v ""') do @echo(%%b
 goto :EOF
 
 
 :getCommandHelp
-for /f "delims=" %%a in ('node %script% %1 --help') do @echo %%a
+for /f "tokens=1* delims=]" %%a in ('node %script% %1 --help ^| find /n /v ""') do @echo(%%b
 goto :EOF
 
 
@@ -142,7 +166,7 @@ goto :EOF
 
 
 :ifExists
-SET /P ANSWER=Bookmark already exists, do you want to update? %=%
+set /P ANSWER=Bookmark already exists, do you want to update? %=%
 if /i {%ANSWER%}=={yes} (
 	goto :updateBookmark
 	goto :EOF
@@ -160,7 +184,7 @@ if /i {%ANSWER%}=={y} (
 
 
 :nonExists
-SET /P ANSWER=Bookmark doesn't exist, do you want to create one here? %=%
+set /P ANSWER=Bookmark doesn't exist, do you want to create one here? %=%
 if /i {%ANSWER%}=={yes} (
 	goto :addBookmark
 	goto :EOF
