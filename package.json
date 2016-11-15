@@ -1,6 +1,6 @@
 {
   "name": "bookmark",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Directory bookmarker: use bm (bookmark) instead of cd /really/long/path/",
   "keywords": "bookmarks",
   "author": "Sterling DeMille <sterlingdemille+npm@gmail.com>",

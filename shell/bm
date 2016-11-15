@@ -133,7 +133,7 @@ function updateBookmark {
 
 function removeBookmark {
     # add/remove 'filler' to end of output to keep \n's from getting trimmed
-    output=$(node "$script" remove $2; echo filler);
+    output=$(node "$script" remove $2; echo filler)
     echo "${output%filler}"
     return
 }
@@ -141,7 +141,7 @@ function removeBookmark {
 
 function listBookmark {
     # add/remove 'filler' to end of output to keep \n's from getting trimmed
-    output=$(node "$script" list $2; echo filler);
+    output=$(node "$script" list $2; echo filler)
     echo "${output%filler}"
     return
 }
@@ -149,7 +149,7 @@ function listBookmark {
 
 function color {
     # add/remove 'filler' to end of output to keep \n's from getting trimmed
-    output=$(node "$script" color $2; echo filler);
+    output=$(node "$script" color $2; echo filler)
     echo "${output%filler}"
     return
 }
@@ -157,7 +157,7 @@ function color {
 
 function getVersion {
     # add/remove 'filler' to end of output to keep \n's from getting trimmed
-    output=$(node "$script" -v; echo filler);
+    output=$(node "$script" -v; echo filler)
     echo "${output%filler}"
     return
 }

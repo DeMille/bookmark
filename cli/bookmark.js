@@ -64,7 +64,7 @@ bookmark.list = function(optionalName) {
 
     // pad each name, @ least 2 spaces between name and path
     var table = docs.sort(alpha).map(function(doc) {
-      return pad(doc.name, width) + '  ' + doc.path;
+      return pad(escape(doc.name), width) + '  ' + escape(doc.path);
     });
 
     // add headers (also padded)
@@ -95,7 +95,7 @@ function addBookmark(name, path) {
     if (err) return dbError();
 
     console.log('Bookmark added:\n%s %s',
-      chalk.green(name), chalk.cyan(path));
+      chalk.green(escape(name)), chalk.cyan(escape(path)));
   });
 }
 
@@ -104,7 +104,7 @@ function updateBookmark(name, path) {
     if (err) return dbError();
 
     console.log('Bookmark updated:\n%s %s',
-      chalk.green(name), chalk.cyan(path));
+      chalk.green(escape(name)), chalk.cyan(escape(path)));
   });
 }
 

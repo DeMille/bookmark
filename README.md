@@ -82,6 +82,7 @@ It might have been better to exclude Node and only use .sh/.bat scripts, but my 
 
 ## Changelog
 0.2.0 - Support for zsh, fixes for npm prefix paths with spaces
+0.2.1 - Fixed windows/cygwin accidental escape chars in path
 
 
 ## License
