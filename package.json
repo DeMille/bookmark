@@ -1,6 +1,6 @@
 {
   "name": "bookmark",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Directory bookmarker: use bm (bookmark) instead of cd /really/long/path/",
   "keywords": "bookmarks",
   "author": "Sterling DeMille <sterlingdemille+npm@gmail.com>",
@@ -19,7 +19,7 @@
   "preferGlobal": true,
   "dependencies": {
     "chalk": "^1.1.3",
-    "commander": "~2.2.0",
+    "commander": "^2.9.0",
     "nedb": "~0.10.5"
   }
 }
