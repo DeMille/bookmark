@@ -14,22 +14,22 @@ if "%2"=="--help" (
 
 :: Add
 if "%1"=="add" (
-	goto :addBookmark
+    goto :addBookmark
 )
 if "%1"=="a" (
-	goto :addBookmark
+    goto :addBookmark
 )
 
 
 :: Update
 if "%1"=="update" (
-	goto :updateBookmark
+    goto :updateBookmark
 )
 if "%1"=="up" (
-	goto :updateBookmark
+    goto :updateBookmark
 )
 if "%1"=="u" (
-	goto :updateBookmark
+    goto :updateBookmark
 )
 
 
@@ -82,7 +82,7 @@ if "%1"=="-h" (
 if "%1"=="" (
     goto :getHelp
 ) else (
-	:: All other cases, fetch the bookmark
+    :: All other cases, fetch the bookmark
     goto :getBookmark
 )
 
@@ -118,7 +118,7 @@ goto :EOF
 
 
 :removeBookmark
-for /f "tokens=1* delims=]" %%a in ('node %script% remove %2 ^| find /n /v ""') do @echo(%%b
+for /f "tokens=1* delims=:" %%a in ('node %script% remove %2 ^| findstr /n "^"') do echo(%%b
 goto :EOF
 
 
@@ -147,20 +147,20 @@ goto :EOF
 
 
 :getHelp
-for /f "tokens=1* delims=]" %%a in ('node %script% --help ^| find /n /v ""') do @echo(%%b
+for /f "tokens=1* delims=:" %%a in ('node %script% --help ^| findstr /n "^"') do echo(%%b
 goto :EOF
 
 
 :getCommandHelp
-for /f "tokens=1* delims=]" %%a in ('node %script% %1 --help ^| find /n /v ""') do @echo(%%b
+for /f "tokens=1* delims=:" %%a in ('node %script% %1 --help ^| findstr /n "^"') do echo(%%b
 goto :EOF
 
 
 :getBookmark
 for /f "delims=" %%a in ('node %script% %1') do @if "%%a"=="Bookmark not found" (
-	echo This bookmark does not exist yet
+    echo This bookmark does not exist yet
 ) else (
-	cd /d %%a
+    cd /d %%a
 )
 goto :EOF
 
@@ -168,34 +168,34 @@ goto :EOF
 :ifExists
 set /P ANSWER=Bookmark already exists, do you want to update? %=%
 if /i {%ANSWER%}=={yes} (
-	goto :updateBookmark
-	goto :EOF
+    goto :updateBookmark
+    goto :EOF
 )
 if /i {%ANSWER%}=={yar} (
-	goto :updateBookmark
-	goto :EOF
+    goto :updateBookmark
+    goto :EOF
 )
 if /i {%ANSWER%}=={y} (
-	goto :updateBookmark
-	goto :EOF
+    goto :updateBookmark
+    goto :EOF
 ) else (
-	goto :EOF
+    goto :EOF
 )
 
 
 :nonExists
 set /P ANSWER=Bookmark doesn't exist, do you want to create one here? %=%
 if /i {%ANSWER%}=={yes} (
-	goto :addBookmark
-	goto :EOF
+    goto :addBookmark
+    goto :EOF
 )
 if /i {%ANSWER%}=={yar} (
-	goto :addBookmark
-	goto :EOF
+    goto :addBookmark
+    goto :EOF
 )
 if /i {%ANSWER%}=={y} (
-	goto :addBookmark
-	goto :EOF
+    goto :addBookmark
+    goto :EOF
 ) else (
-	goto :EOF
+    goto :EOF
 )

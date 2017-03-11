@@ -83,13 +83,15 @@ It might have been better to exclude Node and only use .sh/.bat scripts, but my 
 ## Changelog
 + 0.2.0 - Support for zsh, fixes for npm prefix paths with spaces
 + 0.2.1 - Fixed windows/cygwin accidental escape chars in path
++ 0.2.2 - Updated commander.js dep
++ 0.2.3 - Fixed `find` command issue
 
 
 ## License
 
 The MIT License (MIT)
 
-Copyright (c) 2014 Sterling DeMille &lt;sterlingdemille@gmail.com&gt;
+Copyright (c) 2014 Sterling DeMille
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
